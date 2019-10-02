@@ -299,11 +299,9 @@ def do_login(args, context, cookie_domain=''):
         return 400, template_vars, headers
 
     if args.get('error', False):
-        contentstring = 'An error occurred while trying to log into URS. URS says: "{}". '.format(args.get('error', ''))
+        contentstring = 'Earthdata Login reported an error: {}". '.format(args.get('error_msg', ''))
         if args.get('error') == 'access_denied':
-            # This happens when user doesn't agree to EULA. Maybe other times too.
             return_status = 401
-            contentstring += 'Be sure to agree to the EULA.'
         else:
             return_status = 400
 
@@ -312,7 +310,7 @@ def do_login(args, context, cookie_domain=''):
         return return_status, template_vars, {}
 
     if 'code' not in args:
-        contentstring = 'Did not get the required CODE from URS'
+        contentstring = 'Did not get the required CODE from Earthdata Login'
 
         template_vars = {'contentstring': contentstring, 'title': 'Could not login.'}
         headers = {}
@@ -325,7 +323,7 @@ def do_login(args, context, cookie_domain=''):
     if not auth:
         log.debug('no auth returned from do_auth()')
 
-        template_vars = {'contentstring': 'There was a problem talking to URS Login', 'title': 'Could Not Login'}
+        template_vars = {'contentstring': 'There was a problem talking to Earthdata Login', 'title': 'Could Not Login'}
 
         return 400, template_vars, {}
 
@@ -350,5 +348,5 @@ def do_login(args, context, cookie_domain=''):
         headers.update(make_set_cookie_headers_jwt(jwt_cookie_payload, '', cookie_domain))
         return 301, {}, headers
 
-    template_vars = {'contentstring': 'Could not get user profile from URS', 'title': 'Could Not Login'}
+    template_vars = {'contentstring': 'Could not get user profile from Earthdata Login', 'title': 'Could Not Login'}
     return 400, template_vars, {}
